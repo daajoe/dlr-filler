@@ -87,3 +87,14 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# IDE and other stuff
+*~
+.DS_Store
+.idea/
+
+#Project specific stuff
+*.csv
+dlr-filler.ini
+*.pdf
+muster.pdf
