@@ -3,12 +3,14 @@
 from read_csv import Timesheet
 from collections import OrderedDict
 
+
 def read_config():
     from ConfigParser import SafeConfigParser
 
     config = SafeConfigParser()
     config.read('dlr-filler.ini')
     return config
+
 
 config = read_config()
 state = config.get('main', 'state')
@@ -26,16 +28,14 @@ filename = 'data.csv'
 # TODO: put commandline parameter handling
 # TODO: cleaning
 
-t = Timesheet(filename=filename,daily_contract_hours=contract_hours)
-
+ts = Timesheet(filename=filename, daily_contract_hours=contract_hours)
 
 from pdf_output import PDFMonthlyTimeSheet
 
 o = PDFMonthlyTimeSheet(topic, name, number)
 
-
-for k, values in OrderedDict(sorted(t.compute_hours().items(), key=lambda t: t[0])).iteritems():
-    o.fill_pdf(values=values,month=k[1])
+for k, values in OrderedDict(sorted(ts.compute_hours().items(), key=lambda t: t[0])).iteritems():
+    o.fill_pdf(values=values, month=k[1])
 
 o.write_pdf()
 exit(0)

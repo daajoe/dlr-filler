@@ -5,10 +5,12 @@
 import StringIO
 from pyPdf import PdfFileWriter, PdfFileReader
 from reportlab.pdfgen import canvas
-#TODO: change to a4paper
+# TODO: change to a4paper
 from reportlab.lib.pagesizes import A4
 from utils import get_month_name
+
 i = 0
+
 
 class PDFMonthlyTimeSheet(object):
     def __init__(self, topic, name, number, template="muster.pdf"):
@@ -24,7 +26,6 @@ class PDFMonthlyTimeSheet(object):
 
         self.output = PdfFileWriter()
 
-
     def __put_hours(self, values, y_offset):
         for key, value in values.iteritems():
             day = int(key.day)
@@ -39,7 +40,7 @@ class PDFMonthlyTimeSheet(object):
         self.__can.drawString(x, y, string)
         self.__can.setFont("Helvetica", 8)
 
-    def fill_pdf(self,values,month):
+    def fill_pdf(self, values, month):
         self.__can.setFont("Helvetica", 12)
         self.__can.rotate(90)
         self.__can.setFont("Helvetica", 8)
@@ -59,7 +60,6 @@ class PDFMonthlyTimeSheet(object):
         self.__put_large_string(self.number, 640, -70)
         self.__put_large_string(get_month_name(month, "de_DE.UTF-8"), 68, -235)
         self.__can.showPage()
-
 
     def write_pdf(self, template="muster.pdf", outputname="destination.pdf"):
         self.__can.save()

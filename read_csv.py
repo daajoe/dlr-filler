@@ -32,6 +32,8 @@ class Timesheet(object):
             absence = {}
             others = {}
             for row in reader:
+                if row['end'] == row['type'] == '':
+                    continue
                 if not row['type'] and (not row['client'] or row['client'].upper() == 'DLR'):
                     val, date = Timesheet.compute_dates(entries, row)
                     entries[date] = val
@@ -47,9 +49,9 @@ class Timesheet(object):
     def get_month_year(values):
         years = set()
         months = set()
-        for date in values:
-            years.add(date.year)
-            months.add(date.month)
+        for datev in values:
+            years.add(datev.year)
+            months.add(datev.month)
         return sorted(years), sorted(months)
 
     def __compute_daily_hours(self):
@@ -62,14 +64,19 @@ class Timesheet(object):
 
         years, months = Timesheet.get_month_year(project_hours)
 
-        non_working_days = filter(lambda x: x[1] == False, days2workingdays(years, months).iteritems())
+        non_working_days = filter(lambda x: x[1] is False, days2workingdays(years, months).iteritems())
+
         for day, _ in non_working_days:
             project_hours[day] = other_hours[day] = productive_hours[day] = absence_hours[day] = 'X'
-        # print absence_hours
 
         return {'years': years, 'months': months, 'project_hours': project_hours, 'other_hours': other_hours,
                 'productive_hours': productive_hours, 'absence_hours': absence_hours}
 
+    def compute_hours(self):
+        values = self.__compute_daily_hours()
+        return self.__compute_monthly_hours(values)
+
+    # noinspection PyMethodMayBeStatic
     def __compute_monthly_hours(self, values):
         ret = {}
         for year in values['years']:
@@ -86,11 +93,8 @@ class Timesheet(object):
                      'absence_hours': current_month(values['absence_hours']),
                      'total_project_hours': sum([e for e in current_month_v(values['project_hours']).itervalues()]),
                      'total_other_hours': sum([e for e in current_month_v(values['other_hours']).itervalues()]),
-                     'total_productive_hours': sum([e for e in current_month_v(values['productive_hours']).itervalues()]),
+                     'total_productive_hours': sum(
+                         [e for e in current_month_v(values['productive_hours']).itervalues()]),
                      'total_absence_hours': sum([e for e in current_month_v(values['absence_hours']).itervalues()])}
                 ret[(year, month)] = d
         return ret
-
-    def compute_hours(self):
-        values = self.__compute_daily_hours()
-        return self.__compute_monthly_hours(values)
